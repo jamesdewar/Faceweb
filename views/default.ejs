@@ -3,13 +3,56 @@
 <head>
 	<meta charset="utf-8">
 	<title> My app </title>
+	<link href="vendor/css/bootstrap.min.css" rel="stylesheet">
+	<link href="vendor/css/bootstrap-toggle.min.css" rel="stylesheet">
+	<link href="vendor/css/bootstrap-dialog.min.css" rel="stylesheet">
+	<link href="css/main.css" rel="stylesheet">
+	<script src="vendor/js/jquery.min.js"></script>
+	<script src="vendor/js/bootstrap.min.js"></script>
+	<script src="vendor/js/bootstrap-toggle.min.js"></script>
+	<script src="vendor/js/bootstrap-dialog.min.js"></script>
+	<script src="vendor/js/handlebars.min.js"></script>
+	<script src="vendor/js/jstat.min.js"></script>
 </head>
 <body>
 	<h1>Facial Recognition in the Browser</h1>
 	<div id = "container">
-		<video autoplay="true" id ="videoElement">
+		<video id="videoel"autoplay="true"  width="400" height="300">
 		</video>
+		<div id ="detectedFaces"></div>
+		<h2>Training
+			<input type="checkbox" checked data-toggle="toggle"
+			id="trainingChk">
+		</h2>
+		<div class="input-group addPersonDiv">
+			<input type="text" class="form-control" id="addPersonTxt">
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button"
+				id="addPersonBtn" name="train">
+				Add Person
+			</button>
+		</span>
 	</div>
+</div>
+
 <script src="js/main.js"></script>
+<script type="text/javascript">
+
+	var vid = document.getElementById('videoel'),
+	vidReady = false;
+	var defaultTok = 20, defaultNumNulls = 20;
+	var tok = defaultTok,
+	people = [], defaultPerson = -1,
+	images = [],
+	training = false;
+	var numNulls, sentTimes, receivedTimes;
+	var socket, socketName;
+
+     $("#serverBtn.btn-group > .btn").click(changeServerCallback);
+     $("#addPersonBtn").click(addPersonCallback);
+     $("#addPersonTxt").pressEnter(addPersonCallback);
+     $("#trainingChk").change(trainingChkCallback);
+    // $("#viewTSNEBtn").click(viewTSNECallback);
+ </script>
 </body>
 <html>
