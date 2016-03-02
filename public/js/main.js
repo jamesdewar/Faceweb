@@ -78,9 +78,10 @@ if (tok > 0) {
 		$.post("https://localhost:8443/image",msg,function(data){
 		console.log('done');
 	});
-	tok--;
+	//tok--;
 }
-setTimeout(function() {requestAnimFrame(sendFrameLoop)}, 250);
+setTimeout(function() {requestAnimFrame(sendFrameLoop)}, 1000);
+//setTimeout(sendFrameLoop,1000);
 }
 
 
@@ -158,84 +159,84 @@ function sendState() {
 	socket.send(JSON.stringify(msg));
 }
 
-function createSocket(address, name) {
-	socket = new WebSocket(address);
-	socketName = name;
-	socket.binaryType = "arraybuffer";
-	socket.onopen = function() {
-		$("#serverStatus").html("Connected to " + name);
-		sentTimes = [];
-		receivedTimes = [];
-		tok = defaultTok;
-		numNulls = 0
+// function createSocket(address, name) {
+// 	socket = new WebSocket(address);
+// 	socketName = name;
+// 	socket.binaryType = "arraybuffer";
+// 	socket.onopen = function() {
+// 		$("#serverStatus").html("Connected to " + name);
+// 		sentTimes = [];
+// 		receivedTimes = [];
+// 		tok = defaultTok;
+// 		numNulls = 0
 
-		socket.send(JSON.stringify({'type': 'NULL'}));
-		sentTimes.push(new Date());
-	}
-	socket.onmessage = function(e) {
-		console.log(e);
-		j = JSON.parse(e.data)
-		if (j.type == "NULL") {
-			receivedTimes.push(new Date());
-			numNulls++;
-			if (numNulls == defaultNumNulls) {
-				updateRTT();
-				sendState();
-				sendFrameLoop();
-			} else {
-				socket.send(JSON.stringify({'type': 'NULL'}));
-				sentTimes.push(new Date());
-			}
-		} else if (j.type == "PROCESSED") {
-			tok++;
-		} else if (j.type == "NEW_IMAGE") {
-			images.push({
-				hash: j.hash,
-				identity: j.identity,
-				image: getDataURLFromRGB(j.content),
-				representation: j.representation
-			});
-			redrawPeople();
-		} else if (j.type == "IDENTITIES") {
-			var h = "Last updated: " + (new Date()).toTimeString();
-			h += "<ul>";
-			var len = j.identities.length
-			if (len > 0) {
-				for (var i = 0; i < len; i++) {
-					var identity = "Unknown";
-					var idIdx = j.identities[i];
-					if (idIdx != -1) {
-						identity = people[idIdx];
-					}
-					h += "<li>" + identity + "</li>";
-				}
-			} else {
-				h += "<li>Nobody detected.</li>";
-			}
-			h += "</ul>"
-			$("#peopleInVideo").html(h);
-		} else if (j.type == "ANNOTATED") {
-			$("#detectedFaces").html(
-				"<img src='" + j['content'] + "' width='430px'></img>"
-				)
-		} else if (j.type == "TSNE_DATA") {
-			BootstrapDialog.show({
-				message: "<img src='" + j['content'] + "' width='100%'></img>"
-			});
-		} else {
-			console.log("Unrecognized message type: " + j.type);
-		}
-	}
-	socket.onerror = function(e) {
-		console.log("Error creating WebSocket connection to " + address);
-		console.log(e);
-	}
-	socket.onclose = function(e) {
-		if (e.target == socket) {
-			$("#serverStatus").html("Disconnected.");
-		}
-	}
-}
+// 		socket.send(JSON.stringify({'type': 'NULL'}));
+// 		sentTimes.push(new Date());
+// 	}
+// 	socket.onmessage = function(e) {
+// 		console.log(e);
+// 		j = JSON.parse(e.data)
+// 		if (j.type == "NULL") {
+// 			receivedTimes.push(new Date());
+// 			numNulls++;
+// 			if (numNulls == defaultNumNulls) {
+// 				updateRTT();
+// 				sendState();
+// 				sendFrameLoop();
+// 			} else {
+// 				socket.send(JSON.stringify({'type': 'NULL'}));
+// 				sentTimes.push(new Date());
+// 			}
+// 		} else if (j.type == "PROCESSED") {
+// 			tok++;
+// 		} else if (j.type == "NEW_IMAGE") {
+// 			images.push({
+// 				hash: j.hash,
+// 				identity: j.identity,
+// 				image: getDataURLFromRGB(j.content),
+// 				representation: j.representation
+// 			});
+// 			redrawPeople();
+// 		} else if (j.type == "IDENTITIES") {
+// 			var h = "Last updated: " + (new Date()).toTimeString();
+// 			h += "<ul>";
+// 			var len = j.identities.length
+// 			if (len > 0) {
+// 				for (var i = 0; i < len; i++) {
+// 					var identity = "Unknown";
+// 					var idIdx = j.identities[i];
+// 					if (idIdx != -1) {
+// 						identity = people[idIdx];
+// 					}
+// 					h += "<li>" + identity + "</li>";
+// 				}
+// 			} else {
+// 				h += "<li>Nobody detected.</li>";
+// 			}
+// 			h += "</ul>"
+// 			$("#peopleInVideo").html(h);
+// 		} else if (j.type == "ANNOTATED") {
+// 			$("#detectedFaces").html(
+// 				"<img src='" + j['content'] + "' width='430px'></img>"
+// 				)
+// 		} else if (j.type == "TSNE_DATA") {
+// 			BootstrapDialog.show({
+// 				message: "<img src='" + j['content'] + "' width='100%'></img>"
+// 			});
+// 		} else {
+// 			console.log("Unrecognized message type: " + j.type);
+// 		}
+// 	}
+// 	socket.onerror = function(e) {
+// 		console.log("Error creating WebSocket connection to " + address);
+// 		console.log(e);
+// 	}
+// 	socket.onclose = function(e) {
+// 		if (e.target == socket) {
+// 			$("#serverStatus").html("Disconnected.");
+// 		}
+// 	}
+// }
 
 function umSuccess(stream) {
 	if (vid.mozCaptureStream) {

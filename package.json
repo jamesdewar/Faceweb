@@ -6,7 +6,9 @@
   "dependencies": {
     "body-parser": "^1.15.0",
     "ejs": "^2.4.1",
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "python-shell": "^0.3.0",
+    "zerorpc": "^0.9.6"
   },
   "devDependencies": {},
   "scripts": {

@@ -134,6 +134,8 @@ class Recognition(object):
 
 		bb = align.getLargestFaceBoundingBox(rgbFrame)
 		bbs = [bb] if bb is not None else []
+		bl = None
+		tr = None
 		for bb in bbs:
 			# print(len(bbs))
 			alignedFace = align.align(96, rgbFrame, bb)
@@ -160,14 +162,15 @@ class Recognition(object):
 					if self.svm is not None:
 						print "identifying person"
 						identity = self.svm.predict(rep)[0]
+						bl = (bb.left(), bb.bottom())
+						tr = (bb.right(), bb.top())
 					else:
 						print("hhh")
 						identity = -1
 					if identity not in identities:
 						identities.append(identity)
-		temp = "identity %s", identity
-		print self.training
-		return temp
+		temp = self.people[int(float(identity))]
+		return temp,bl,tr
 
 		# 	if not self.training:
 		# 		bl = (bb.left(), bb.bottom())
