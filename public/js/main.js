@@ -53,13 +53,8 @@ function registerHbarsHelpers() {
     	return options.inverse(this);
     });
 }
-
+var listRectangle = [];
 function sendFrameLoop() {
-// 	if (socket == null || socket.readyState != socket.OPEN ||
-// 		!vidReady || numNulls != defaultNumNulls) {
-// 		return;
-// }
-
 if (tok > 0) {
 	var canvas = document.createElement('canvas');
 	canvas.width = vid.width;
@@ -69,6 +64,7 @@ if (tok > 0) {
 	var apx = cc.getImageData(0, 0, vid.width, vid.height);
 
 	var dataURL = canvas.toDataURL('image/jpeg', 0.6)
+	var tempRect;
 
 	var msg = {
 		'type': 'FRAME',
@@ -76,14 +72,44 @@ if (tok > 0) {
 		'identity': defaultPerson
 	};
 		$.post("https://localhost:8443/image",msg,function(data){
-		console.log('done');
+		$("#detectedFaces").html("Identity : " + data[0]);
+		tempRect = add_rect('red',{x1:data[1][0] , y1:data[2][1]  , x2: data[2][0], y2:data[1][1] })
+		//console.log(data);
 	});
 	//tok--;
 }
+
+if (listRectangle.length>0)
+{       
+ $container.children('div:last-child').remove();
+ listRectangle.pop();
+
+}
+listRectangle.push(tempRect);
 setTimeout(function() {requestAnimFrame(sendFrameLoop)}, 1000);
 //setTimeout(sendFrameLoop,1000);
 }
 
+
+var $container = $("#container");
+//adapted fromm http://stackoverflow.com/questions/15651953/drawing-rectangles-on-an-image-in-javascript
+var add_rect = function(color, rect) {
+    $('<div class="child"/>')
+    .appendTo($container)
+    .css("left", 300 - rect.x1 + "px")
+    .css("top", rect.y1 + "px")
+    .css("width", (rect.x2-rect.x1)+"px")
+    .css("height", (rect.y2-rect.y1)+"px")
+    .css("border", "1px solid " + color);
+};
+
+var remove_last_rect = function() {
+    if (new_rects.length > 0) {
+        $container.children('div:last-child').remove();
+        new_rects.pop();
+    }
+}
+_.map(rects, _.partial(add_rect, 'red'));
 
 function getPeopleInfoHtml() {
 	var info = {'-1': 0};
@@ -159,84 +185,7 @@ function sendState() {
 	socket.send(JSON.stringify(msg));
 }
 
-// function createSocket(address, name) {
-// 	socket = new WebSocket(address);
-// 	socketName = name;
-// 	socket.binaryType = "arraybuffer";
-// 	socket.onopen = function() {
-// 		$("#serverStatus").html("Connected to " + name);
-// 		sentTimes = [];
-// 		receivedTimes = [];
-// 		tok = defaultTok;
-// 		numNulls = 0
 
-// 		socket.send(JSON.stringify({'type': 'NULL'}));
-// 		sentTimes.push(new Date());
-// 	}
-// 	socket.onmessage = function(e) {
-// 		console.log(e);
-// 		j = JSON.parse(e.data)
-// 		if (j.type == "NULL") {
-// 			receivedTimes.push(new Date());
-// 			numNulls++;
-// 			if (numNulls == defaultNumNulls) {
-// 				updateRTT();
-// 				sendState();
-// 				sendFrameLoop();
-// 			} else {
-// 				socket.send(JSON.stringify({'type': 'NULL'}));
-// 				sentTimes.push(new Date());
-// 			}
-// 		} else if (j.type == "PROCESSED") {
-// 			tok++;
-// 		} else if (j.type == "NEW_IMAGE") {
-// 			images.push({
-// 				hash: j.hash,
-// 				identity: j.identity,
-// 				image: getDataURLFromRGB(j.content),
-// 				representation: j.representation
-// 			});
-// 			redrawPeople();
-// 		} else if (j.type == "IDENTITIES") {
-// 			var h = "Last updated: " + (new Date()).toTimeString();
-// 			h += "<ul>";
-// 			var len = j.identities.length
-// 			if (len > 0) {
-// 				for (var i = 0; i < len; i++) {
-// 					var identity = "Unknown";
-// 					var idIdx = j.identities[i];
-// 					if (idIdx != -1) {
-// 						identity = people[idIdx];
-// 					}
-// 					h += "<li>" + identity + "</li>";
-// 				}
-// 			} else {
-// 				h += "<li>Nobody detected.</li>";
-// 			}
-// 			h += "</ul>"
-// 			$("#peopleInVideo").html(h);
-// 		} else if (j.type == "ANNOTATED") {
-// 			$("#detectedFaces").html(
-// 				"<img src='" + j['content'] + "' width='430px'></img>"
-// 				)
-// 		} else if (j.type == "TSNE_DATA") {
-// 			BootstrapDialog.show({
-// 				message: "<img src='" + j['content'] + "' width='100%'></img>"
-// 			});
-// 		} else {
-// 			console.log("Unrecognized message type: " + j.type);
-// 		}
-// 	}
-// 	socket.onerror = function(e) {
-// 		console.log("Error creating WebSocket connection to " + address);
-// 		console.log(e);
-// 	}
-// 	socket.onclose = function(e) {
-// 		if (e.target == socket) {
-// 			$("#serverStatus").html("Disconnected.");
-// 		}
-// 	}
-// }
 
 function umSuccess(stream) {
 	if (vid.mozCaptureStream) {
@@ -261,7 +210,7 @@ function addPersonCallback(el) {
 			'val': newPerson
 		};
 	$.post("https://localhost:8443/person",msg,function(data){
-		console.log('done');
+		console.log(data);
 	});	
 	redrawPeople();
 }
@@ -273,7 +222,7 @@ function trainingChkCallback() {
 		'val': training
 	};
 	$.post("https://localhost:8443/train",msg,function(data){
-		console.log('done');
+		console.log(data);
 	});
 	sendFrameLoop();
 }

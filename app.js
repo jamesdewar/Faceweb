@@ -24,15 +24,6 @@ app.get('/',function(req,res){
 res.render('default');
 });
 
-//Test route
-app.get('/:name?',function(req,res){
-	var name = req.params.name;
-	if (!name){
-		res.send('No name');
-	} else {
-		res.send(name + ' was here');
-	}
-});
 var toggleCount = 0;
 //Training route
 app.post('/train', function(req,res){
@@ -60,20 +51,23 @@ client.invoke("addPerson",name,function(error,res,more){
 res.send("yes");
 });
 
+var frameDetails= 'unidentified';
 //Image processing
 app.post('/image', function(req,res){
 	var type = req.body.type,
 	dataURL  = req.body.dataURL,
 	identity = req.body.identity;
 
-console.log('Received image ' + identity);
+console.log('Received image ');
 //Run python that does the recognition
-res.send("yes");
 client.invoke("processFrame",dataURL,identity,function(error,res,more){
-	console.log(res);
-	console.log(res[0]);
+//	console.log(typeof res);
+	console.log("Type of res[0]" + typeof res[0]);
+	frameDetails =res;
 
 });
+console.log(frameDetails);
+res.send(frameDetails);
 });
   // received a message sent from the Python script (a simple "print" statement) 
 
