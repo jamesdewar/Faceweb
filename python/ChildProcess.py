@@ -20,6 +20,8 @@ import sys
 import os
 import dlib
 import imagehash
+import matplotlib.pyplot as plt
+import scipy
 fileDir = os.path.dirname(os.path.realpath(__file__))
 
 align = AlignDlib('model/shape_predictor_68_face_landmarks.dat')

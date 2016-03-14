@@ -96,19 +96,19 @@ var $container = $("#container");
 var add_rect = function(color, rect) {
     $('<div class="child"/>')
     .appendTo($container)
-    .css("left", 300 - rect.x1 + "px")
-    .css("top", rect.y1 + "px")
+    .css("left", 250 - rect.x1 + "px")
+    .css("top", 70 +rect.y1 + "px")
     .css("width", (rect.x2-rect.x1)+"px")
     .css("height", (rect.y2-rect.y1)+"px")
     .css("border", "1px solid " + color);
 };
 
-var remove_last_rect = function() {
-    if (new_rects.length > 0) {
-        $container.children('div:last-child').remove();
-        new_rects.pop();
-    }
-}
+// var remove_last_rect = function() {
+//     if (new_rects.length > 0) {
+//         $container.children('div:last-child').remove();
+//         new_rects.pop();
+//     }
+// }
 _.map(rects, _.partial(add_rect, 'red'));
 
 function getPeopleInfoHtml() {
@@ -227,16 +227,6 @@ function trainingChkCallback() {
 	sendFrameLoop();
 }
 
-function viewTSNECallback(el) {
-	if (socket != null) {
-		var msg = {
-			'type': 'REQ_TSNE',
-			'people': people
-		};
-		socket.send(JSON.stringify(msg));
-	}
-}
-
 function findImageByHash(hash) {
 	var imgIdx = 0;
 	var len = images.length;
@@ -247,33 +237,6 @@ function findImageByHash(hash) {
 		}
 	}
 	return -1;
-}
-
-function updateIdentity(hash, idx) {
-	var imgIdx = findImageByHash(hash);
-	if (imgIdx >= 0) {
-		images[imgIdx].identity = idx;
-		var msg = {
-			'type': 'UPDATE_IDENTITY',
-			'hash': hash,
-			'idx': idx
-		};
-		socket.send(JSON.stringify(msg));
-	}
-}
-
-function removeImage(hash) {
-	console.log("Removing " + hash);
-	var imgIdx = findImageByHash(hash);
-	if (imgIdx >= 0) {
-		images.splice(imgIdx, 1);
-		redrawPeople();
-		var msg = {
-			'type': 'REMOVE_IMAGE',
-			'hash': hash
-		};
-		socket.send(JSON.stringify(msg));
-	}
 }
 
 function changeServerCallback() {
