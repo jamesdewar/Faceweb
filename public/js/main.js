@@ -65,27 +65,36 @@ if (tok > 0) {
 
 	var dataURL = canvas.toDataURL('image/jpeg', 0.6)
 	var tempRect;
+	var tempRect1;
 
 	var msg = {
 		'type': 'FRAME',
 		'dataURL': dataURL,
 		'identity': defaultPerson
 	};
-		$.post("https://localhost:8443/image",msg,function(data){
-		$("#detectedFaces").html("Identity : " + data[0]);
-		tempRect = add_rect('red',{x1:data[1][0] , y1:data[2][1]  , x2: data[2][0], y2:data[1][1] })
+	$.post("https://localhost:8443/image",msg,function(data){
+		if(data[0].length > 1){
+			$("#detectedFaces").html("Identity : " + data[0][0] + " and " + data[0][1]);
+		tempRect1 = add_rect('green',{x1:data[1][1][0] , y1:data[2][1][1]  , x2: data[2][1][0], y2:data[1][1][1]});	
+		tempRect = add_rect('red',{x1:data[1][0][0] , y1:data[2][0][1]  , x2: data[2][0][0], y2:data[1][0][1] });
+		}
+		else{
+			tempRect = add_rect('red',{x1:data[1][0][0] , y1:data[2][0][1]  , x2: data[2][0][0], y2:data[1][0][1] });
+			$("#detectedFaces").html("Identity : " + data[0]);
+		}
 		//console.log(data);
 	});
 	//tok--;
 }
 
-if (listRectangle.length>0)
+if (listRectangle.length>1)
 {       
- $container.children('div:last-child').remove();
- listRectangle.pop();
+	$container.children('div:last-child').remove();
+	listRectangle.pop();
 
 }
 listRectangle.push(tempRect);
+listRectangle.push(tempRect1);
 setTimeout(function() {requestAnimFrame(sendFrameLoop)}, 1000);
 //setTimeout(sendFrameLoop,1000);
 }
@@ -94,21 +103,14 @@ setTimeout(function() {requestAnimFrame(sendFrameLoop)}, 1000);
 var $container = $("#container");
 //adapted fromm http://stackoverflow.com/questions/15651953/drawing-rectangles-on-an-image-in-javascript
 var add_rect = function(color, rect) {
-    $('<div class="child"/>')
-    .appendTo($container)
-    .css("left", 250 - rect.x1 + "px")
-    .css("top", 70 +rect.y1 + "px")
-    .css("width", (rect.x2-rect.x1)+"px")
-    .css("height", (rect.y2-rect.y1)+"px")
-    .css("border", "1px solid " + color);
+	$('<div class="child"/>')
+		.appendTo($container)
+		.css("left", 250 - rect.x1 + "px")
+		.css("top", 70 +rect.y1 + "px")
+		.css("width", (rect.x2-rect.x1)+"px")
+		.css("height", (rect.y2-rect.y1)+"px")
+		.css("border", "2px solid " + color);
 };
-
-// var remove_last_rect = function() {
-//     if (new_rects.length > 0) {
-//         $container.children('div:last-child').remove();
-//         new_rects.pop();
-//     }
-// }
 _.map(rects, _.partial(add_rect, 'red'));
 
 function getPeopleInfoHtml() {
@@ -134,12 +136,12 @@ function getPeopleInfoHtml() {
 
 function redrawPeople() {
 	var context = {people: people, images: images};
-    //$("#peopleTable").html(peopleTableTmpl(context));
+	//$("#peopleTable").html(peopleTableTmpl(context));
 
-    var context = {people: people};
-  //  $("#defaultPersonDropdown").html(defaultPersonTmpl(context));
+	var context = {people: people};
+	//  $("#defaultPersonDropdown").html(defaultPersonTmpl(context));
 
-   // $("#peopleInfo").html(getPeopleInfoHtml());
+	// $("#peopleInfo").html(getPeopleInfoHtml());
 }
 
 function getDataURLFromRGB(rgb) {
@@ -170,9 +172,9 @@ function updateRTT() {
 		diffs.push(receivedTimes[i] - sentTimes[i]);
 	}
 	$("#rtt-"+socketName).html(
-		jStat.mean(diffs).toFixed(2) + " ms (σ = " +
-		jStat.stdev(diffs).toFixed(2) + ")"
-		);
+			jStat.mean(diffs).toFixed(2) + " ms (σ = " +
+			jStat.stdev(diffs).toFixed(2) + ")"
+			);
 }
 
 function sendState() {
@@ -192,7 +194,7 @@ function umSuccess(stream) {
 		vid.mozSrcObject = stream;
 	} else {
 		vid.src = (window.URL && window.URL.createObjectURL(stream)) ||
-		stream;
+			stream;
 	}
 	vid.play();
 	vidReady = true;
@@ -205,10 +207,10 @@ function addPersonCallback(el) {
 	if (newPerson == "") return;
 	people.push(newPerson);
 	$("#addPersonTxt").val("");
-		var msg = {
-			'type': 'ADD_PERSON',
-			'val': newPerson
-		};
+	var msg = {
+		'type': 'ADD_PERSON',
+		'val': newPerson
+	};
 	$.post("https://localhost:8443/person",msg,function(data){
 		console.log(data);
 	});	
@@ -243,27 +245,27 @@ function changeServerCallback() {
 	$(this).addClass("active").siblings().removeClass("active");
 	switch ($(this).html()) {
 		case "Local":
-		socket.close();
-		redrawPeople();
-		createSocket("ws:192.168.99.100:9000", "Local");
-		break;
+			socket.close();
+			redrawPeople();
+			createSocket("ws:192.168.99.100:9000", "Local");
+			break;
 		case "CMU":
-		socket.close();
-		redrawPeople();
-		createSocket("ws://facerec.cmusatyalab.org:9000", "CMU");
-		break;
+			socket.close();
+			redrawPeople();
+			createSocket("ws://facerec.cmusatyalab.org:9000", "CMU");
+			break;
 		case "AWS East":
-		socket.close();
-		redrawPeople();
-		createSocket("ws://54.159.128.49:9000", "AWS-East");
-		break;
+			socket.close();
+			redrawPeople();
+			createSocket("ws://54.159.128.49:9000", "AWS-East");
+			break;
 		case "AWS West":
-		socket.close();
-		redrawPeople();
-		createSocket("ws://54.188.234.61:9000", "AWS-West");
-		break;
+			socket.close();
+			redrawPeople();
+			createSocket("ws://54.188.234.61:9000", "AWS-West");
+			break;
 		default:
-		alert("Unrecognized server: " + $(this.html()));
+			alert("Unrecognized server: " + $(this.html()));
 	}
 }
    

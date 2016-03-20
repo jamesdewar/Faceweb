@@ -132,12 +132,15 @@ class Recognition(object):
 		identities = []
 
 		#bbs for when we want to do multiple people at once
-		# bbs = align.getAllFaceBoundingBoxes(rgbFrame)
+		bbs = align.getAllFaceBoundingBoxes(rgbFrame)
 
-		bb = align.getLargestFaceBoundingBox(rgbFrame)
-		bbs = [bb] if bb is not None else []
+		#bb = align.getLargestFaceBoundingBox(rgbFrame)
+		#bbs = [bb] if bb is not None else []
 		bl = None
 		tr = None
+		AlkIdInFrame = []
+		AllRectInFrameTR = []
+		AllRectInFrameBL = []
 		for bb in bbs:
 			# print(len(bbs))
 			alignedFace = align.align(96, rgbFrame, bb)
@@ -171,8 +174,11 @@ class Recognition(object):
 						identity = -1
 					if identity not in identities:
 						identities.append(identity)
-		temp = self.people[int(float(identity))]
-		return temp,bl,tr
+			temp = self.people[int(float(identity))]
+			AlkIdInFrame.append(temp)
+			AllRectInFrameTR.append(tr)
+			AllRectInFrameBL.append(bl)
+		return AlkIdInFrame,AllRectInFrameBL,AllRectInFrameTR
 
 class Face:
 
